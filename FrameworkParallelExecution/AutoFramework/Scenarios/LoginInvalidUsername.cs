@@ -2,30 +2,31 @@
 {
     using OpenQA.Selenium;
     using NUnit.Framework;
-
-    [Parallelizable(ParallelScope.Self)]
+    
+    [Parallelizable]
     public class LoginInvalidUsername
     {
         IAlert alert;
+        IWebDriver driver;
 
         public LoginInvalidUsername()
-        {
+        {     
         }
 
         [OneTimeSetUp]
         public void Initialize()
         {
-            Actions.InitializeDriver();
-            NavigateTo.LoginFormScenarioThroughTestCases();
+            driver = Actions.InitializeDriver(5);
+            NavigateTo.LoginFormScenarioThroughMenu(driver);
         }
 
-        [TestCase]
+        [Test]
         public void LessThan5Chars()
         {
-            NavigateTo.LoginFormScenarioThroughMenu();
-            Actions.FillLoginForm(Config.Credentials.Invalid.Username.FourCharacters, Config.Credentials.Valid.Password, Config.Credentials.Valid.Password);
+            Actions.FillLoginForm(Config.Credentials.Invalid.Username.FourCharacters, Config.Credentials.Valid.Password, 
+                Config.Credentials.Valid.Password, driver);
 
-            alert = Driver.driver.SwitchTo().Alert();
+            alert = driver.SwitchTo().Alert();
 
             Assert.AreEqual(Config.AlertsTexts.UsernameLengthOutOfRange, alert.Text);
             alert.Accept();
@@ -35,9 +36,9 @@
         public void MoreThan12Chars()
         {
             Actions.FillLoginForm(Config.Credentials.Invalid.Username.ThirteenCharacters,
-                Config.Credentials.Valid.Password, Config.Credentials.Valid.Password);
+                Config.Credentials.Valid.Password, Config.Credentials.Valid.Password, driver);
 
-            alert = Driver.driver.SwitchTo().Alert();
+            alert = driver.SwitchTo().Alert();
 
             Assert.AreEqual(Config.AlertsTexts.UsernameLengthOutOfRange, alert.Text);
             alert.Accept();
@@ -46,7 +47,7 @@
         [OneTimeTearDown]
         public void CleanUp()
         {
-            Driver.driver.Quit();
+            driver.Quit();
         }
     }
 }
